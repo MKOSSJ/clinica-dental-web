@@ -37,6 +37,12 @@ const router = createRouter({
       component: DashboardView,
       meta: { requiresAuth: true, roles: ['admin'] },
     },
+    {
+      path: '/pacientes',
+      name: 'patients',
+      component: () => import('@/views/Patients/Index.vue'),
+      meta: { requiresAuth: true },
+    },
   ],
 })
 
@@ -60,5 +66,6 @@ router.beforeEach((to, from, next) => {
 
   next()
 })
+
 
 export default router
