@@ -1,65 +1,54 @@
-<script setup>
-import { reactive, ref } from 'vue'
+<!-- src/views/ForgotPassword.vue -->
+<template>
+  <div class="min-h-screen flex items-center justify-center bg-gray-50">
+    <form @submit.prevent="submit" class="bg-white p-8 rounded shadow-md w-full max-w-sm">
+      <h1 class="text-xl font-bold mb-6 text-center">Recuperar contraseña</h1>
 
-const form = reactive({ email: '' })
+      <div class="mb-4">
+        <label class="block text-sm mb-1">Email</label>
+        <input v-model="email" type="email" required class="border rounded w-full px-3 py-2" />
+      </div>
+
+      <p v-if="message" :class="success ? 'text-green-600' : 'text-red-600'" class="text-sm mb-3">
+        {{ message }}
+      </p>
+
+      <button
+        type="submit"
+        :disabled="loading"
+        class="w-full bg-blue-600 text-white py-2 rounded disabled:opacity-50"
+      >
+        {{ loading ? 'Enviando...' : 'Enviar enlace' }}
+      </button>
+
+      <router-link to="/login" class="block text-center text-sm text-blue-600 mt-4">
+        Volver a iniciar sesión
+      </router-link>
+    </form>
+  </div>
+</template>
+
+<script setup>
+import { ref } from 'vue'
+import authService from '@/services/authService'
+
+const email = ref('')
 const message = ref('')
+const success = ref(false)
 const loading = ref(false)
 
-async function onSubmit() {
-  if (!form.email) {
-    message.value = 'Ingresa tu correo para continuar.'
-    return
-  }
-
+async function submit() {
   loading.value = true
   message.value = ''
-
   try {
-    const response = await fetch('http://localhost:8000/api/forgot-password', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
-      body: JSON.stringify(form),
-    })
-
-    const result = await response.json()
-    message.value = result.message || 'Revisa tu correo.'
-  } catch (error) {
-    message.value = 'No se pudo enviar la solicitud.'
+    const { data } = await authService.forgotPassword(email.value)
+    success.value = true
+    message.value = data.message
+  } catch (err) {
+    success.value = false
+    message.value = err.response?.data?.message || 'Error al enviar el enlace.'
   } finally {
     loading.value = false
   }
 }
 </script>
-
-<template>
-  <div class="auth-page">
-    <form class="auth-card" @submit.prevent="onSubmit">
-      <h2>Recuperar contraseña</h2>
-      <p class="subtitle">Te enviaremos un enlace si tu correo está registrado.</p>
-
-      <label for="email">Correo</label>
-      <input id="email" v-model="form.email" type="email" placeholder="tu@correo.com" />
-
-      <p v-if="message" class="message">{{ message }}</p>
-
-      <button type="submit" :disabled="loading">
-        {{ loading ? 'Enviando...' : 'Enviar enlace' }}
-      </button>
-
-      <router-link to="/login">Volver al login</router-link>
-    </form>
-  </div>
-</template>
-
-<style scoped>
-.auth-page { min-height: 100vh; display: grid; place-items: center; background: #f5f7fb; }
-.auth-card { display: flex; flex-direction: column; gap: 0.75rem; width: min(100%, 400px); padding: 2rem; border-radius: 12px; background: white; box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
-input, button { padding: 0.75rem; border-radius: 8px; border: 1px solid #d9e2ec; }
-button { background: #2563eb; color: white; cursor: pointer; }
-button:disabled { opacity: 0.7; cursor: wait; }
-.message { color: #0f766e; }
-.subtitle { margin: 0; color: #64748b; }
-</style>
