@@ -1,4 +1,4 @@
-// src/services/patientService.js
+// src/services/doctorService.js
 
 import axios from 'axios'
 
@@ -14,19 +14,21 @@ api.interceptors.request.use((config) => {
 
 export default {
   list(params) {
-    return api.get('/pacientes', { params })
+    return api.get('/doctores', { params })
   },
   get(id) {
-    return api.get(`/pacientes/${id}`)
+    return api.get(`/doctores/${id}`)
   },
   create(data) {
-    return api.post('/pacientes', data)
+    return api.post('/doctores', data)
   },
   update(id, data) {
-    return api.put(`/pacientes/${id}`, data)
+    return api.put(`/doctores/${id}`, data)
   },
   remove(id) {
-    return api.delete(`/pacientes/${id}`)
+    return api.delete(`/doctores/${id}`)
   },
-  
+  horarios(id, fecha) {
+    return api.get(`/doctores/${id}/horarios`, { params: { fecha } })
+  },
 }
