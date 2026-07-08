@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\PatientController;
 use App\Http\Controllers\Api\DoctorController;
 use App\Http\Controllers\Api\AppointmentController;
+use App\Http\Controllers\Api\UserController;
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
@@ -45,4 +46,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('citas/{appointment}/cancelar', [AppointmentController::class, 'cancelar']);
     Route::put('citas/{appointment}/reagendar', [AppointmentController::class, 'reagendar']);
     Route::get('citas/historial/{patientId}', [AppointmentController::class, 'historial']);
+});
+Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+    Route::apiResource('users', UserController::class)->except(['show']);
+    Route::get('users/{user}', [UserController::class, 'show']);
 });

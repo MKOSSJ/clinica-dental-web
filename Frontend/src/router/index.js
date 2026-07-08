@@ -65,6 +65,12 @@ const router = createRouter({
       component: () => import('@/views/Appointments/History.vue'),
       meta: { requiresAuth: true },
     },
+    {
+      path: '/usuarios',
+      name: 'users',
+      component: () => import('@/views/Users/Index.vue'),
+      meta: { requiresAuth: true, roles: ['admin'] },
+    },
   ],
 })
 
