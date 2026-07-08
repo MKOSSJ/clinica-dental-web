@@ -52,7 +52,19 @@ const router = createRouter({
       name: 'doctors',
       component: () => import('@/views/Doctors/Index.vue'),
       meta: { requiresAuth: true },
-    }
+    },
+    {
+      path: '/citas',
+      name: 'appointments',
+      component: () => import('@/views/Appointments/Index.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/citas/historial/:patientId',
+      name: 'appointments-history',
+      component: () => import('@/views/Appointments/History.vue'),
+      meta: { requiresAuth: true },
+    },
   ],
 })
 
