@@ -3,103 +3,112 @@ import { useAuthStore } from '@/stores/authStore'
 import LoginView from '@/views/Login.vue'
 import ForgotPasswordView from '@/views/ForgotPassword.vue'
 import UnauthorizedView from '@/views/Unauthorized.vue'
-import DashboardView from '@/views/Dashboard.vue'
+import AppLayout from '@/layouts/AppLayout.vue'
+
+const routes = [
+  {
+    path: '/',
+    redirect: '/login',
+  },
+  {
+    path: '/login',
+    name: 'login',
+    component: LoginView,
+    meta: { guest: true },
+  },
+  {
+    path: '/forgot-password',
+    name: 'forgot-password',
+    component: ForgotPasswordView,
+    meta: { guest: true },
+  },
+  {
+    path: '/unauthorized',
+    name: 'unauthorized',
+    component: UnauthorizedView,
+  },
+  {
+    path: '/',
+    component: AppLayout,
+    meta: { requiresAuth: true },
+    children: [
+      {
+        path: 'dashboard',
+        name: 'dashboard',
+        component: () => import('@/views/Dashboard.vue'),
+        meta: { roles: ['admin', 'staff'] },
+      },
+      {
+        path: 'admin',
+        name: 'admin',
+        component: () => import('@/views/Dashboard.vue'),
+        meta: { roles: ['admin'] },
+      },
+      {
+        path: 'pacientes',
+        name: 'patients',
+        component: () => import('@/views/Patients/Index.vue'),
+        meta: { roles: ['admin', 'staff'] },
+      },
+      {
+        path: 'doctores',
+        name: 'doctors',
+        component: () => import('@/views/Doctors/Index.vue'),
+        meta: { roles: ['admin', 'staff'] },
+      },
+      {
+        path: 'citas',
+        name: 'appointments',
+        component: () => import('@/views/Appointments/Index.vue'),
+        meta: { roles: ['admin', 'staff'] },
+      },
+      {
+        path: 'citas/historial/:patientId',
+        name: 'appointments-history',
+        component: () => import('@/views/Appointments/History.vue'),
+        meta: { roles: ['admin', 'staff'] },
+      },
+      {
+        path: 'usuarios',
+        name: 'users',
+        component: () => import('@/views/Users/Index.vue'),
+        meta: { roles: ['admin'] },
+      },
+      {
+        path: 'reportes',
+        name: 'reports',
+        component: () => import('@/views/Reports/Index.vue'),
+        meta: { roles: ['admin'] },
+      },
+    ],
+  },
+]
 
 const router = createRouter({
   history: createWebHistory(),
-  routes: [
-    {
-      path: '/',
-      redirect: '/login',
-    },
-    {
-      path: '/login',
-      name: 'login',
-      component: LoginView,
-      meta: { guest: true },
-    },
-    {
-      path: '/forgot-password',
-      name: 'forgot-password',
-      component: ForgotPasswordView,
-      meta: { guest: true },
-    },
-    {
-      path: '/unauthorized',
-      name: 'unauthorized',
-      component: UnauthorizedView,
-    },
-    {
-      path: '/dashboard',
-      name: 'dashboard',
-      component: DashboardView,
-      meta: { requiresAuth: true },
-    },
-    {
-      path: '/admin',
-      name: 'admin',
-      component: DashboardView,
-      meta: { requiresAuth: true, roles: ['admin'] },
-    },
-    {
-      path: '/pacientes',
-      name: 'patients',
-      component: () => import('@/views/Patients/Index.vue'),
-      meta: { requiresAuth: true },
-    },
-    {
-      path: '/doctores',
-      name: 'doctors',
-      component: () => import('@/views/Doctors/Index.vue'),
-      meta: { requiresAuth: true },
-    },
-    {
-      path: '/citas',
-      name: 'appointments',
-      component: () => import('@/views/Appointments/Index.vue'),
-      meta: { requiresAuth: true },
-    },
-    {
-      path: '/citas/historial/:patientId',
-      name: 'appointments-history',
-      component: () => import('@/views/Appointments/History.vue'),
-      meta: { requiresAuth: true },
-    },
-    {
-      path: '/usuarios',
-      name: 'users',
-      component: () => import('@/views/Users/Index.vue'),
-      meta: { requiresAuth: true, roles: ['admin'] },
-    },
-    {
-      path: '/reportes',
-      name: 'reports',
-      component: () => import('@/views/Reports/Index.vue'),
-      meta: { requiresAuth: true, roles: ['admin'] },
-    },
-  ],
+  routes,
 })
 
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
 
-  if (to.meta.requiresAuth && !authStore.isAuthenticated) {
-    next({ name: 'login' })
-    return
+  const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
+
+  if (requiresAuth && !authStore.isAuthenticated) {
+    return next({ name: 'login' })
   }
 
   if (to.meta.guest && authStore.isAuthenticated) {
-    next({ name: 'dashboard' })
-    return
+    return next({ name: 'dashboard' })
   }
 
-  if (to.meta.roles && !to.meta.roles.includes(authStore.role)) {
-    next({ name: 'unauthorized' })
-    return
+  const roles = to.meta.roles
+
+  if (roles && !roles.includes(authStore.role)) {
+    return next({ name: 'unauthorized' })
   }
 
   next()
 })
-
 
 export default router

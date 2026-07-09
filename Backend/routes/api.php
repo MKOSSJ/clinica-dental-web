@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\DoctorController;
 use App\Http\Controllers\Api\AppointmentController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\ReportController;
+use App\Http\Controllers\Api\DashboardController;
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
@@ -56,4 +57,7 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::get('reportes/citas-por-dia', [ReportController::class, 'citasPorDia']);
     Route::get('reportes/citas-por-doctor', [ReportController::class, 'citasPorDoctor']);
     Route::get('reportes/pacientes-registrados', [ReportController::class, 'pacientesRegistrados']);
+});
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('dashboard', [DashboardController::class, 'index']);
 });
