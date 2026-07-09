@@ -23,61 +23,56 @@ class DoctorController extends Controller
 
         $doctors = $query->orderBy('name')->paginate(10);
 
-        return response()->json([
-            'status'  => true,
-            'message' => 'Doctores obtenidos correctamente',
-            'data'    => $doctors,
-        ]);
+        return $this->success(
+            $doctors,
+            'Doctores obtenidos correctamente'
+        );
     }
 
     public function show(Doctor $doctor)
     {
-        return response()->json([
-            'status'  => true,
-            'message' => 'Doctor encontrado',
-            'data'    => $doctor,
-        ]);
+        return $this->success(
+            $doctor,
+            'Doctor encontrado'
+        );
     }
 
     public function store(StoreDoctorRequest $request)
     {
         $doctor = Doctor::create($request->validated());
 
-        return response()->json([
-            'status'  => true,
-            'message' => 'Doctor registrado correctamente',
-            'data'    => $doctor,
-        ], 201);
+        return $this->success(
+            $doctor,
+            'Doctor registrado correctamente',
+            201
+        );
     }
 
     public function update(UpdateDoctorRequest $request, Doctor $doctor)
     {
         $doctor->update($request->validated());
 
-        return response()->json([
-            'status'  => true,
-            'message' => 'Doctor actualizado correctamente',
-            'data'    => $doctor,
-        ]);
+        return $this->success(
+            $doctor,
+            'Doctor actualizado correctamente'
+        );
     }
 
     public function destroy(Doctor $doctor)
     {
         if ($doctor->appointments()->exists()) {
-            return response()->json([
-                'status'  => false,
-                'message' => 'No se puede eliminar: el doctor tiene citas registradas.',
-                'data'    => null,
-            ], 409);
+            return $this->error(
+                'No se puede eliminar: el doctor tiene citas registradas.',
+                409
+            );
         }
 
         $doctor->delete();
 
-        return response()->json([
-            'status'  => true,
-            'message' => 'Doctor eliminado correctamente',
-            'data'    => null,
-        ]);
+        return $this->success(
+            null,
+            'Doctor eliminado correctamente'
+        );
     }
 
     public function horarios(Request $request, Doctor $doctor)
@@ -112,14 +107,13 @@ class DoctorController extends Controller
 
         $disponibles = array_values(array_diff($slots, $ocupadas));
 
-        return response()->json([
-            'status'  => true,
-            'message' => 'Horarios obtenidos correctamente',
-            'data'    => [
+        return $this->success(
+            [
                 'fecha'       => $fecha,
                 'disponibles' => $disponibles,
                 'ocupados'    => array_values($ocupadas),
             ],
-        ]);
+            'Horarios obtenidos correctamente'
+        );
     }
 }

@@ -33,22 +33,19 @@ class DashboardController extends Controller
         $ultimos7Dias = [];
         for ($i = 6; $i >= 0; $i--) {
             $fecha = $hoy->copy()->subDays($i)->format('Y-m-d');
+
             $ultimos7Dias[] = [
                 'fecha' => $fecha,
                 'total' => $citasPorDia[$fecha] ?? 0,
             ];
         }
 
-        return response()->json([
-            'status'  => true,
-            'message' => 'Resumen del dashboard obtenido correctamente',
-            'data'    => [
-                'totalPacientes'   => $totalPacientes,
-                'totalDoctores'    => $totalDoctores,
-                'citasHoy'         => $citasHoy,
-                'citasPendientes'  => $citasPendientes,
-                'citasUltimos7Dias' => $ultimos7Dias,
-            ],
-        ]);
+        return $this->success([
+            'totalPacientes'    => $totalPacientes,
+            'totalDoctores'     => $totalDoctores,
+            'citasHoy'          => $citasHoy,
+            'citasPendientes'   => $citasPendientes,
+            'citasUltimos7Dias' => $ultimos7Dias,
+        ], 'Resumen del dashboard obtenido correctamente');
     }
 }

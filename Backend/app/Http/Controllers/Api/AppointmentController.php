@@ -38,11 +38,10 @@ class AppointmentController extends Controller
 
         $appointments = $query->orderBy('appointment_date', 'desc')->paginate(10);
 
-        return response()->json([
-            'status'  => true,
-            'message' => 'Citas obtenidas correctamente',
-            'data'    => $appointments,
-        ]);
+        return $this->success(
+            $appointments,
+            'Citas obtenidas correctamente'
+        );
     }
 
     public function store(StoreAppointmentRequest $request)
@@ -50,51 +49,49 @@ class AppointmentController extends Controller
         $validated = $request->validated();
 
         if ($this->horarioOcupado($validated['doctor_id'], $validated['appointment_date'])) {
-            return response()->json([
-                'status'  => false,
-                'message' => 'El doctor ya tiene una cita agendada en ese horario.',
-                'data'    => null,
-            ], 409);
+            return $this->error(
+                'El doctor ya tiene una cita agendada en ese horario.',
+                409
+            );
         }
 
         $appointment = Appointment::create($validated);
         $appointment->load(['patient', 'doctor']);
 
-        return response()->json([
-            'status'  => true,
-            'message' => 'Cita registrada correctamente',
-            'data'    => $appointment,
-        ], 201);
+        return $this->success(
+            $appointment,
+            'Cita registrada correctamente',
+            201
+        );
     }
 
     public function show(Appointment $appointment)
     {
         $appointment->load(['patient', 'doctor']);
 
-        return response()->json([
-            'status'  => true,
-            'message' => 'Cita encontrada',
-            'data'    => $appointment,
-        ]);
+        return $this->success(
+            $appointment,
+            'Cita encontrada'
+        );
     }
 
     public function cancelar(Appointment $appointment)
     {
         if ($appointment->status === 'cancelled') {
-            return response()->json([
-                'status'  => false,
-                'message' => 'Esta cita ya está cancelada.',
-                'data'    => null,
-            ], 409);
+            return $this->error(
+                'Esta cita ya está cancelada.',
+                409
+            );
         }
 
-        $appointment->update(['status' => 'cancelled']);
-
-        return response()->json([
-            'status'  => true,
-            'message' => 'Cita cancelada correctamente',
-            'data'    => $appointment,
+        $appointment->update([
+            'status' => 'cancelled'
         ]);
+
+        return $this->success(
+            $appointment,
+            'Cita cancelada correctamente'
+        );
     }
 
     public function reagendar(RescheduleAppointmentRequest $request, Appointment $appointment)
@@ -102,23 +99,21 @@ class AppointmentController extends Controller
         $nuevaFecha = $request->validated()['appointment_date'];
 
         if ($this->horarioOcupado($appointment->doctor_id, $nuevaFecha, $appointment->id)) {
-            return response()->json([
-                'status'  => false,
-                'message' => 'El doctor ya tiene una cita agendada en ese nuevo horario.',
-                'data'    => null,
-            ], 409);
+            return $this->error(
+                'El doctor ya tiene una cita agendada en ese nuevo horario.',
+                409
+            );
         }
 
         $appointment->update([
             'appointment_date' => $nuevaFecha,
-            'status'           => 'pending',
+            'status' => 'pending',
         ]);
 
-        return response()->json([
-            'status'  => true,
-            'message' => 'Cita reagendada correctamente',
-            'data'    => $appointment,
-        ]);
+        return $this->success(
+            $appointment,
+            'Cita reagendada correctamente'
+        );
     }
 
     public function historial($patientId)
@@ -128,11 +123,10 @@ class AppointmentController extends Controller
             ->orderBy('appointment_date', 'desc')
             ->get();
 
-        return response()->json([
-            'status'  => true,
-            'message' => 'Historial obtenido correctamente',
-            'data'    => $appointments,
-        ]);
+        return $this->success(
+            $appointments,
+            'Historial obtenido correctamente'
+        );
     }
 
     /**

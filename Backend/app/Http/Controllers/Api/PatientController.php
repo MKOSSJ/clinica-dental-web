@@ -24,60 +24,55 @@ class PatientController extends Controller
 
         $patients = $query->orderBy('name')->paginate(10);
 
-        return response()->json([
-            'status'  => true,
-            'message' => 'Pacientes obtenidos correctamente',
-            'data'    => $patients,
-        ]);
+        return $this->success(
+            $patients,
+            'Pacientes obtenidos correctamente'
+        );
     }
 
     public function show(Patient $patient)
     {
-        return response()->json([
-            'status'  => true,
-            'message' => 'Paciente encontrado',
-            'data'    => $patient,
-        ]);
+        return $this->success(
+            $patient,
+            'Paciente encontrado'
+        );
     }
 
     public function store(StorePatientRequest $request)
     {
         $patient = Patient::create($request->validated());
 
-        return response()->json([
-            'status'  => true,
-            'message' => 'Paciente registrado correctamente',
-            'data'    => $patient,
-        ], 201);
+        return $this->success(
+            $patient,
+            'Paciente registrado correctamente',
+            201
+        );
     }
 
     public function update(UpdatePatientRequest $request, Patient $patient)
     {
         $patient->update($request->validated());
 
-        return response()->json([
-            'status'  => true,
-            'message' => 'Paciente actualizado correctamente',
-            'data'    => $patient,
-        ]);
+        return $this->success(
+            $patient,
+            'Paciente actualizado correctamente'
+        );
     }
 
     public function destroy(Patient $patient)
     {
         if ($patient->appointments()->exists()) {
-            return response()->json([
-                'status'  => false,
-                'message' => 'No se puede eliminar: el paciente tiene citas registradas.',
-                'data'    => null,
-            ], 409);
+            return $this->error(
+                'No se puede eliminar: el paciente tiene citas registradas.',
+                409
+            );
         }
 
         $patient->delete();
 
-        return response()->json([
-            'status'  => true,
-            'message' => 'Paciente eliminado correctamente',
-            'data'    => null,
-        ]);
+        return $this->success(
+            null,
+            'Paciente eliminado correctamente'
+        );
     }
 }

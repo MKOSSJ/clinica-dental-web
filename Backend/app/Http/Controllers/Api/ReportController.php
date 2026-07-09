@@ -21,12 +21,10 @@ class ReportController extends Controller
             ->groupBy('status')
             ->pluck('total', 'status');
 
-        return response()->json([
-            'status'  => true,
-            'message' => 'Reporte de citas por día generado correctamente',
-            'data'    => [
-                'fecha'  => $fecha,
-                'total'  => $conteo->sum(),
+        return $this->success(
+            [
+                'fecha' => $fecha,
+                'total' => $conteo->sum(),
                 'porEstado' => [
                     'pending'   => $conteo['pending'] ?? 0,
                     'confirmed' => $conteo['confirmed'] ?? 0,
@@ -34,7 +32,8 @@ class ReportController extends Controller
                     'completed' => $conteo['completed'] ?? 0,
                 ],
             ],
-        ]);
+            'Reporte de citas por día generado correctamente'
+        );
     }
 
     public function citasPorDoctor(CitasPorDoctorRequest $request)
@@ -48,17 +47,16 @@ class ReportController extends Controller
             ->orderBy('appointment_date')
             ->get();
 
-        return response()->json([
-            'status'  => true,
-            'message' => 'Reporte de citas por doctor generado correctamente',
-            'data'    => [
+        return $this->success(
+            [
                 'doctor_id' => $validated['doctor_id'],
                 'desde'     => $validated['desde'],
                 'hasta'     => $validated['hasta'],
                 'total'     => $citas->count(),
                 'citas'     => $citas,
             ],
-        ]);
+            'Reporte de citas por doctor generado correctamente'
+        );
     }
 
     public function pacientesRegistrados(PacientesRegistradosRequest $request)
@@ -70,15 +68,14 @@ class ReportController extends Controller
             ->orderBy('created_at')
             ->get();
 
-        return response()->json([
-            'status'  => true,
-            'message' => 'Reporte de pacientes registrados generado correctamente',
-            'data'    => [
+        return $this->success(
+            [
                 'desde'     => $validated['desde'],
                 'hasta'     => $validated['hasta'],
                 'total'     => $pacientes->count(),
                 'pacientes' => $pacientes,
             ],
-        ]);
+            'Reporte de pacientes registrados generado correctamente'
+        );
     }
 }

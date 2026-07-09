@@ -23,20 +23,18 @@ class UserController extends Controller
 
         $users = $query->orderBy('name')->paginate(10);
 
-        return response()->json([
-            'status'  => true,
-            'message' => 'Usuarios obtenidos correctamente',
-            'data'    => $users,
-        ]);
+        return $this->success(
+            $users,
+            'Usuarios obtenidos correctamente'
+        );
     }
 
     public function show(User $user)
     {
-        return response()->json([
-            'status'  => true,
-            'message' => 'Usuario encontrado',
-            'data'    => $user,
-        ]);
+        return $this->success(
+            $user,
+            'Usuario encontrado'
+        );
     }
 
     public function store(StoreUserRequest $request)
@@ -46,11 +44,11 @@ class UserController extends Controller
 
         $user = User::create($validated);
 
-        return response()->json([
-            'status'  => true,
-            'message' => 'Usuario registrado correctamente',
-            'data'    => $user,
-        ], 201);
+        return $this->success(
+            $user,
+            'Usuario registrado correctamente',
+            201
+        );
     }
 
     public function update(UpdateUserRequest $request, User $user)
@@ -65,29 +63,26 @@ class UserController extends Controller
 
         $user->update($validated);
 
-        return response()->json([
-            'status'  => true,
-            'message' => 'Usuario actualizado correctamente',
-            'data'    => $user,
-        ]);
+        return $this->success(
+            $user,
+            'Usuario actualizado correctamente'
+        );
     }
 
     public function destroy(Request $request, User $user)
     {
         if ($request->user()->id === $user->id) {
-            return response()->json([
-                'status'  => false,
-                'message' => 'No puedes eliminar tu propio usuario.',
-                'data'    => null,
-            ], 409);
+            return $this->error(
+                'No puedes eliminar tu propio usuario.',
+                409
+            );
         }
 
         $user->delete();
 
-        return response()->json([
-            'status'  => true,
-            'message' => 'Usuario eliminado correctamente',
-            'data'    => null,
-        ]);
+        return $this->success(
+            null,
+            'Usuario eliminado correctamente'
+        );
     }
 }

@@ -14,21 +14,24 @@ class AuthController extends Controller
     public function login(LoginRequest $request): JsonResponse
     {
         if (!Auth::attempt($request->only('email', 'password'))) {
-            return $this->jsonResponse(false, 'credenciales inválidas', [], 401);
+            return $this->error(
+                'Credenciales inválidas',
+                401
+            );
         }
 
         $user = Auth::user();
         $token = $user->createToken('auth-token')->plainTextToken;
 
-        return $this->jsonResponse(true, 'Inicio de sesión correcto', [
+        return $this->success([
             'token' => $token,
             'user' => [
-                'id' => $user->id,
-                'name' => $user->name,
+                'id'    => $user->id,
+                'name'  => $user->name,
                 'email' => $user->email,
-                'role' => $user->role,
+                'role'  => $user->role,
             ],
-        ]);
+        ], 'Inicio de sesión correcto');
     }
 
     public function logout(): JsonResponse
@@ -39,7 +42,10 @@ class AuthController extends Controller
             $user->currentAccessToken()?->delete();
         }
 
-        return $this->jsonResponse(true, 'Sesión cerrada correctamente', []);
+        return $this->success(
+            [],
+            'Sesión cerrada correctamente'
+        );
     }
 
     public function forgotPassword(ForgotPasswordRequest $request): JsonResponse
@@ -49,10 +55,17 @@ class AuthController extends Controller
         $status = Password::sendResetLink($request->only('email'));
 
         if ($status === Password::RESET_LINK_SENT) {
-            return $this->jsonResponse(true, 'Si el correo está registrado, recibirás un enlace de recuperación.', []);
+            return $this->success(
+                [],
+                'Si el correo está registrado, recibirás un enlace de recuperación.'
+            );
         }
 
-        return $this->jsonResponse(true, 'Si el correo está registrado, recibirás un enlace de recuperación.', []);
+        // Por seguridad se responde lo mismo aunque el correo no exista.
+        return $this->success(
+            [],
+            'Si el correo está registrado, recibirás un enlace de recuperación.'
+        );
     }
 
     public function me(): JsonResponse
@@ -60,25 +73,19 @@ class AuthController extends Controller
         $user = Auth::user();
 
         if (! $user) {
-            return $this->jsonResponse(false, 'No autenticado', [], 401);
+            return $this->error(
+                'No autenticado',
+                401
+            );
         }
 
-        return $this->jsonResponse(true, 'Usuario autenticado', [
+        return $this->success([
             'user' => [
-                'id' => $user->id,
-                'name' => $user->name,
+                'id'    => $user->id,
+                'name'  => $user->name,
                 'email' => $user->email,
-                'role' => $user->role,
+                'role'  => $user->role,
             ],
-        ]);
-    }
-
-    private function jsonResponse(bool $status, string $message, array $data = [], int $code = 200): JsonResponse
-    {
-        return response()->json([
-            'status' => $status,
-            'message' => $message,
-            'data' => $data,
-        ], $code);
+        ], 'Usuario autenticado');
     }
 }
