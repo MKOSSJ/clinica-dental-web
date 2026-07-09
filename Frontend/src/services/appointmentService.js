@@ -31,4 +31,7 @@ export default {
   historial(patientId) {
     return api.get(`/citas/historial/${patientId}`)
   },
+  notificar(id) {
+  return api.post(`/citas/${id}/notificar`)
+  },
 }

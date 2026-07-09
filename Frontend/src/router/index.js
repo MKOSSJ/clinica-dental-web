@@ -80,6 +80,12 @@ const routes = [
         component: () => import('@/views/Reports/Index.vue'),
         meta: { roles: ['admin'] },
       },
+      {
+        path: 'integraciones',
+        name: 'integrations',
+        component: () => import('@/views/Integrations/Index.vue'),
+        meta: { roles: ['admin', 'staff'] },
+      },
     ],
   },
 ]

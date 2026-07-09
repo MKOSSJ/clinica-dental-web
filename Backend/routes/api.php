@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\AppointmentController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\ReportController;
 use App\Http\Controllers\Api\DashboardController;
+use App\Http\Controllers\Api\NotificationController;
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
@@ -60,4 +61,7 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
 });
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index']);
+});
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('citas/{appointment}/notificar', [NotificationController::class, 'notificar']);
 });
