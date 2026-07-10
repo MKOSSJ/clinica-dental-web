@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RescheduleAppointmentRequest;
+use App\Http\Requests\UpdateAppointmentStatusRequest;
 use App\Http\Requests\StoreAppointmentRequest;
 use App\Models\Appointment;
 use Carbon\Carbon;
@@ -146,5 +147,16 @@ class AppointmentController extends Controller
         }
 
         return $query->exists();
+    }
+    public function actualizarEstado(UpdateAppointmentStatusRequest $request, Appointment $appointment)
+    {
+        if ($appointment->status === 'cancelled') {
+            return $this->error('No se puede cambiar el estado de una cita cancelada.', 409);
+        }
+
+        $appointment->update(['status' => $request->validated()['status']]);
+        $appointment->load(['patient', 'doctor']);
+
+        return $this->success($appointment, 'Estado de la cita actualizado correctamente');
     }
 }

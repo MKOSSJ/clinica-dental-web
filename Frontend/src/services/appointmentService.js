@@ -34,4 +34,7 @@ export default {
   notificar(id) {
   return api.post(`/citas/${id}/notificar`)
   },
+  actualizarEstado(id, status) {
+  return api.put(`/citas/${id}/estado`, { status })
+  },
 }

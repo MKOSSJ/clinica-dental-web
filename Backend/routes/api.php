@@ -49,6 +49,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('citas/{appointment}/cancelar', [AppointmentController::class, 'cancelar']);
     Route::put('citas/{appointment}/reagendar', [AppointmentController::class, 'reagendar']);
     Route::get('citas/historial/{patientId}', [AppointmentController::class, 'historial']);
+    Route::put('citas/{appointment}/estado', [AppointmentController::class, 'actualizarEstado']);
 });
 Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::apiResource('users', UserController::class)->except(['show']);

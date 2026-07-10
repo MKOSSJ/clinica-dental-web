@@ -49,8 +49,19 @@
           <td class="p-2">{{ cita.doctor?.name }}</td>
           <td class="p-2">{{ formatDate(cita.appointment_date) }}</td>
           <td class="p-2">
-            <span :class="statusClass(cita.status)" class="px-2 py-1 rounded text-xs">
-              {{ statusLabel(cita.status) }}
+            <select
+              v-if="cita.status !== 'cancelled'"
+              :value="cita.status"
+              @change="cambiarEstado(cita, $event.target.value)"
+              :class="statusClass(cita.status)"
+              class="px-2 py-1 rounded text-xs border-0 cursor-pointer"
+            >
+              <option value="pending">Pendiente</option>
+              <option value="confirmed">Confirmada</option>
+              <option value="completed">Completada</option>
+            </select>
+            <span v-else :class="statusClass(cita.status)" class="px-2 py-1 rounded text-xs">
+              Cancelada
             </span>
           </td>
           <td class="p-2 space-x-2">
@@ -162,6 +173,15 @@ async function confirmCancel(cita) {
     fetchAppointments()
   } catch (err) {
     errorMessage.value = err.response?.data?.message || 'No se pudo cancelar la cita.'
+  }
+}
+
+async function cambiarEstado(cita, nuevoStatus) {
+  try {
+    await appointmentService.actualizarEstado(cita.id, nuevoStatus)
+    fetchAppointments()
+  } catch (err) {
+    errorMessage.value = err.response?.data?.message || 'No se pudo actualizar el estado.'
   }
 }
 
